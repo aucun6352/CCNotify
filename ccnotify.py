@@ -271,29 +271,52 @@ class ClaudePromptTracker:
             return "Unknown"
 
     def send_notification(self, title, subtitle, cwd=None):
-        """Send macOS notification using terminal-notifier"""
+        """Send desktop notification (cross-platform)"""
+        import platform
         from datetime import datetime
 
         current_time = datetime.now().strftime("%B %d, %Y at %H:%M")
+        message = f"{subtitle}\n{current_time}"
 
         try:
-            cmd = [
-                "terminal-notifier",
-                "-sound",
-                "default",
-                "-title",
-                title,
-                "-subtitle",
-                f"{subtitle}\n{current_time}",
-            ]
-
-            if cwd:
-                cmd.extend(["-execute", f'/usr/local/bin/code "{cwd}"'])
-
-            subprocess.run(cmd, check=False, capture_output=True)
+            system = platform.system()
+            if system == "Darwin":
+                cmd = [
+                    "terminal-notifier",
+                    "-sound", "default",
+                    "-title", title,
+                    "-subtitle", message,
+                ]
+                if cwd:
+                    cmd.extend(["-execute", f'/usr/local/bin/code "{cwd}"'])
+                subprocess.run(cmd, check=False, capture_output=True)
+            elif system == "Windows":
+                safe_title = title.replace("'", "''").replace('"', '`"')
+                safe_msg = message.replace("'", "''").replace('"', '`"').replace("\n", " | ")
+                ps_cmd = (
+                    "Add-Type -AssemblyName System.Windows.Forms; "
+                    "$b = New-Object System.Windows.Forms.NotifyIcon; "
+                    "$b.Icon = [System.Drawing.SystemIcons]::Information; "
+                    "$b.BalloonTipIcon = 'Info'; "
+                    f"$b.BalloonTipTitle = '{safe_title}'; "
+                    f"$b.BalloonTipText = '{safe_msg}'; "
+                    "$b.Visible = $true; "
+                    "$b.ShowBalloonTip(5000); "
+                    "Start-Sleep -Seconds 6; "
+                    "$b.Dispose()"
+                )
+                subprocess.run(
+                    ["powershell", "-NoProfile", "-Command", ps_cmd],
+                    check=False, capture_output=True
+                )
+            else:
+                subprocess.run(
+                    ["notify-send", title, message],
+                    check=False, capture_output=True
+                )
             logging.info(f"Notification sent: {title} - {subtitle}")
         except FileNotFoundError:
-            logging.warning("terminal-notifier not found, notification skipped")
+            logging.warning("Notification tool not found, notification skipped")
         except Exception as e:
             logging.error(f"Error sending notification: {e}")
 
