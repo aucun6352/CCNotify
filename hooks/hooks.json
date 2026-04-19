@@ -1,12 +1,11 @@
 {
-  "description": "CCNotify hooks for desktop notifications",
   "hooks": {
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python \"${CLAUDE_PLUGIN_ROOT}/ccnotify.py\" UserPromptSubmit"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/ccnotify-hook.cmd\" UserPromptSubmit"
           }
         ]
       }
@@ -16,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"${CLAUDE_PLUGIN_ROOT}/ccnotify.py\" Stop"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/ccnotify-hook.cmd\" Stop"
           }
         ]
       }
@@ -26,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"${CLAUDE_PLUGIN_ROOT}/ccnotify.py\" Notification"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/ccnotify-hook.cmd\" Notification"
           }
         ]
       }
