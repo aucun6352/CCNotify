@@ -1,0 +1,8 @@
+{
+  "name": "CCNotify",
+  "version": "1.0.0",
+  "description": "CCNotify provides desktop notifications for Claude Code, alerting you when Claude needs your input or completes tasks.",
+  "author": {
+    "name": "dazuiba"
+  }
+}
